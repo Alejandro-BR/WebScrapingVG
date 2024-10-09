@@ -9,24 +9,21 @@ namespace InstantGaming;
 internal class Juego
 {
 
-    //public string Name { get; init; } //El init significa que puedes añadirle un valor al crearlo unicamente
-    //public string Url { get; init; }
-    //public decimal Price { get; init; }
-    //public Juego(string name, string url, decimal price)
-    //{
-    //    Name = name;
-    //    Url = url;
-    //    Price = price;
-    //}
+    public string Name { get; init; } //El init significa que puedes añadirle un valor al crearlo unicamente
+    public decimal Price { get; init; }
+    public Juego(string name, decimal price)
+    {
+        Name = name;
+        Price = price;
+    }
 
-    //public override string ToString()
-    //{
-    //    StringBuilder stringBuilder = new StringBuilder();
+    public override string ToString()
+    {
+        StringBuilder stringBuilder = new StringBuilder();
 
-    //    stringBuilder.AppendLine($"Name: {Name}");
-    //    stringBuilder.AppendLine($"Url: {Url}");
-    //    stringBuilder.AppendLine($"Price: {Price}");
+        stringBuilder.AppendLine($"Name: {Name}");
+        stringBuilder.AppendLine($"Price: {Price}");
 
-    //    return stringBuilder.ToString();
-    //}
+        return stringBuilder.ToString();
+   }
 }
