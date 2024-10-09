@@ -29,6 +29,9 @@ internal class Program
         // Ir a la pagina de Steam
         await page.GotoAsync("https://store.steampowered.com/?l=spanish");
 
+        // Delay
+        await page.WaitForLoadStateAsync(LoadState.DOMContentLoaded);
+
         // Aceptar cookies si aparece el boton
         IElementHandle? acceptButton = await page.QuerySelectorAsync(".btn_blue_steamui.btn_medium");
         if (acceptButton != null) await acceptButton.ClickAsync();
@@ -40,7 +43,46 @@ internal class Program
         // Simular la tecla Enter para buscar
         await searchInput.PressAsync("Enter");
 
-        // Mantener el navegador abierto
+        await Task.Delay(2000);
+
+        //// Delay
+        //await page.WaitForLoadStateAsync(LoadState.DOMContentLoaded);
+
+        // discount_final_price
+
+        Console.WriteLine("Hola que haces");
+
+        await page.WaitForLoadStateAsync(LoadState.DOMContentLoaded);
+
+        // Recorremos la lista de productos y recolectamos los datos
+        List<Juego> juegos = new List<Juego>();
+        IReadOnlyList<IElementHandle> juegosElements = await page.QuerySelectorAllAsync("#search_resultsRows a");
+
+        IElementHandle first = juegosElements[0];
+        Juego juego = await GetProductAsync(first);
+
+        Console.WriteLine(juego);
+
+
+        // Espera infinita
         await Task.Delay(-1);
+    }
+
+    private static async Task<Juego> GetProductAsync(IElementHandle element)
+    {
+        // PRECIO
+        IElementHandle priceElement = await
+        element.QuerySelectorAsync(".discount_final_price"); // Referencia le span con texto
+        string priceRaw = await priceElement.InnerTextAsync(); // Coge el texto del span
+        // Quitar el EUR
+        priceRaw = priceRaw.Replace("€", "",
+        StringComparison.OrdinalIgnoreCase);
+        // Quitar los espacios al principio y al final de la cadena
+        priceRaw = priceRaw.Trim();
+        // Pasar a decimal
+        decimal price = decimal.Parse(priceRaw);
+
+        // Devolver el producto
+        return new Juego("The Witcher 3: Wild Hunt", price);
     }
 }
