@@ -28,7 +28,12 @@ internal class Program
         Microsoft.Playwright.Program.Main(["install"]);
 
         // Esta función accede a la web 1 vez hasta el buscador de juegos y itera el array nombresJuegos devolviendo nombre y precio 
-        await getInfoJuegos(nombresJuegos);
+        //await getInfoJuegos(nombresJuegos);
+        Console.WriteLine("Lista de juegos:\n");
+
+        List<Juego> juegos = await getInfoJuegos(nombresJuegos);
+
+        Console.WriteLine(juegos.Count);
     }
 
     /**
@@ -69,10 +74,13 @@ internal class Program
      * - Si falla en alguna búsqueda, captura y muestra el error en consola.
      * 
      * @param {string[]} nombresJuegos - Un array de cadenas que contiene los nombres de los juegos a buscar.
-     * @return {Promise<void>} - Una tarea que representa la operación asíncrona.
+     * @return {Promise<List<Juego>>} juegosDatos - Devuelve todos los juegos en una lista.
      */
-    private static async Task getInfoJuegos(string[] nombresJuegos)
+    private static async Task<List<Juego>> getInfoJuegos(string[] nombresJuegos)
     {
+        // Almacena todos los juegos
+        List<Juego> juegosDatos = new List<Juego>();
+
         //Sirve para obtener el precio del modo en al es
         CultureInfo.CurrentCulture = CultureInfo.InvariantCulture;
 
@@ -132,8 +140,13 @@ internal class Program
 
             // Obtiene los datos del primer juego utilizando la función GetProductAsync
             Juego juego = await GetProductAsync(firts);
+
+            juegosDatos.Add(juego);
+
             Console.WriteLine(juego);
         }
+
+        return juegosDatos;
         // await Task.Delay(-1);
     }
 }

@@ -24,7 +24,9 @@ internal class Program
 
         Console.WriteLine("Lista de juegos:\n");
 
-        Juego[] juegos = await getInfoJuegos(nombresJuegos);
+        List<Juego> juegos = await getInfoJuegos(nombresJuegos);
+
+        Console.WriteLine(juegos.Count);
 
     }
 
@@ -71,12 +73,12 @@ internal class Program
     * - Si falla en alguna búsqueda, captura y muestra el error en consola.
     * 
     * @param {string[]} nombresJuegos - Un array de cadenas que contiene los nombres de los juegos a buscar.
-    * @return {Promise<Juego[]>} juegosDatos - Devuelve todos los juegos en un array.
+    * @return {Promise<List<Juego>>} juegosDatos - Devuelve todos los juegos en una lista.
     */
-    private static async Task<Juego[]> getInfoJuegos(string[] nombresJuegos)
+    private static async Task<List<Juego>> getInfoJuegos(string[] nombresJuegos)
     {
         // Almacena todos los juegos
-        Juego[] juegosDatos = [];
+        List<Juego> juegosDatos = new List<Juego>();
 
         // DOM
         const string BOTON_COOKIS = ".btn_blue_steamui.btn_medium";
@@ -129,7 +131,7 @@ internal class Program
             IElementHandle first = juegosElements[0];
             Juego juego = await GetProductAsync(first);
 
-            juegos.Add(juego);
+            juegosDatos.Add(juego);
 
             Console.WriteLine(juego);
         }
