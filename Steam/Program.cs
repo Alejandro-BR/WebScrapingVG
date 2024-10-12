@@ -22,36 +22,67 @@ internal class Program
         // Instalar los navegadores
         Microsoft.Playwright.Program.Main(["install"]);
 
-        foreach (var juego in nombresJuegos)
-        {
-            await getInfoJuegos(juego);
-        }
+        Console.WriteLine("Lista de juegos:\n");
 
+        Juego[] juegos = await getInfoJuegos(nombresJuegos);
 
-        // Espera infinita
-        //await Task.Delay(-1);
     }
 
-    private static async Task<Juego> GetProductAsync(IElementHandle element, string nombre)
+    /**
+    * - Intenta seleccionar el precio del producto desde el elemento HTML.
+    * - Intenta seleccionar el nombre del producto desde el elemento HTML.
+    * Si tiene éxito, retorna un objeto Juego con el nombre y el precio.
+    * Si falla, captura y lanza un error.
+    * 
+    * @param {IElement} element - El elemento HTML que representa el producto
+    * @return {Promise<Juego>} -Un Objeto con el nombre del juego y precio del producto
+    * **/
+    private static async Task<Juego> GetProductAsync(IElementHandle element)
     {
+        // DOM
+        const string PRECIO_DOM = ".discount_final_price";
+        const string TITULO_DOM = ".title";
+
         // PRECIO
-        IElementHandle priceElement = await
-        element.QuerySelectorAsync(".discount_final_price"); // Referencia le span con texto
-        string priceRaw = await priceElement.InnerTextAsync(); // Coge el texto del span
-        // Quitar el EUR
-        priceRaw = priceRaw.Replace("€", "",
+        // Referencia le span con texto
+        IElementHandle precioElement = await element.QuerySelectorAsync(PRECIO_DOM); 
+        string precioRaw = await precioElement.InnerTextAsync(); // Coge el texto del span
+        // Quitar el €
+        precioRaw = precioRaw.Replace("€", "",
         StringComparison.OrdinalIgnoreCase);
         // Quitar los espacios al principio y al final de la cadena
-        priceRaw = priceRaw.Trim();
+        precioRaw = precioRaw.Trim();
         // Pasar a decimal
-        decimal price = decimal.Parse(priceRaw);
+        decimal precio = decimal.Parse(precioRaw);
+
+        // TITULO
+        // Referencia le span con texto
+        IElementHandle tituloElement = await element.QuerySelectorAsync(TITULO_DOM);
+        string titulo = await tituloElement.InnerTextAsync();  // Coge el texto del span
 
         // Devolver el producto
-        return new Juego(nombre, price);
+        return new Juego(titulo, precio);
     }
 
-    private static async Task getInfoJuegos(string nombreJ)
+    /**
+    * - Intenta obtener información de juegos desde el sitio web de Steam.
+    * - Itera sobre los nombres de juegos proporcionados y busca cada uno en el sitio.
+    * - Si encuentra un juego, recolecta su nombre y precio, y crea un objeto Juego.
+    * - Si falla en alguna búsqueda, captura y muestra el error en consola.
+    * 
+    * @param {string[]} nombresJuegos - Un array de cadenas que contiene los nombres de los juegos a buscar.
+    * @return {Promise<Juego[]>} juegosDatos - Devuelve todos los juegos en un array.
+    */
+    private static async Task<Juego[]> getInfoJuegos(string[] nombresJuegos)
     {
+        // Almacena todos los juegos
+        Juego[] juegosDatos = [];
+
+        // DOM
+        const string BOTON_COOKIS = ".btn_blue_steamui.btn_medium";
+        const string BARRA_BUSQUEDA = "#store_nav_search_term";
+        const string RESULTADO = "#search_resultsRows a";
+
         // Crear Playwright
         using IPlaywright playwright = await Playwright.CreateAsync();
 
@@ -75,27 +106,35 @@ internal class Program
         await page.WaitForLoadStateAsync(LoadState.DOMContentLoaded);
 
         // Aceptar cookies si aparece el boton
-        IElementHandle? acceptButton = await page.QuerySelectorAsync(".btn_blue_steamui.btn_medium");
+        IElementHandle? acceptButton = await page.QuerySelectorAsync(BOTON_COOKIS);
         if (acceptButton != null) await acceptButton.ClickAsync();
 
-        // Escribir en la barra de busqueda
-        IElementHandle searchInput = await page.QuerySelectorAsync("#store_nav_search_term");
-        await searchInput.FillAsync(nombreJ);
+        foreach (var nombreJ in nombresJuegos)
+        {
+            // Escribir en la barra de busqueda
+            IElementHandle searchInput = await page.QuerySelectorAsync(BARRA_BUSQUEDA);
+            await searchInput.FillAsync(nombreJ);
 
-        // Simular la tecla Enter para buscar
-        await searchInput.PressAsync("Enter");
+            // Simular la tecla Enter para buscar
+            await searchInput.PressAsync("Enter");
 
-        await Task.Delay(2000);
+            await Task.Delay(2000);
 
-        await page.WaitForLoadStateAsync(LoadState.DOMContentLoaded);
+            await page.WaitForLoadStateAsync(LoadState.DOMContentLoaded);
 
-        // Recorremos la lista de productos y recolectamos los datos
-        List<Juego> juegos = new List<Juego>();
-        IReadOnlyList<IElementHandle> juegosElements = await page.QuerySelectorAllAsync("#search_resultsRows a");
+            // Recorremos la lista de productos y recolectamos los datos
+            List<Juego> juegos = new List<Juego>();
+            IReadOnlyList<IElementHandle> juegosElements = await page.QuerySelectorAllAsync(RESULTADO);
 
-        IElementHandle first = juegosElements[0];
-        Juego juego = await GetProductAsync(first, nombreJ);
+            IElementHandle first = juegosElements[0];
+            Juego juego = await GetProductAsync(first);
 
-        Console.WriteLine(juego);
+            juegos.Add(juego);
+
+            Console.WriteLine(juego);
+        }
+
+        return juegosDatos;
+
     }
 }
