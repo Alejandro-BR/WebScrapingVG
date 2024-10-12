@@ -1,9 +1,10 @@
-﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.11.35312.102
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "InstantGaming", "InstantGaming\InstantGaming.csproj", "{DFF5F7D2-2E62-42D9-8D6C-E608174C7092}"
+Project("{FAE04EC0-301F-11D3-BF4-00C04F79EFBC}") = "InstantGaming", "InstantGaming\InstantGaming.csproj", "{DFF5F7D2-2E62-42D9-8D6C-E608174C7092}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4-00C04F79EFBC}") = "Steam", "Steam\Steam.csproj", "{D772A33E-9CE5-45D4-B928-66460FA950E5}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -15,6 +16,10 @@ Global
 		{DFF5F7D2-2E62-42D9-8D6C-E608174C7092}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{DFF5F7D2-2E62-42D9-8D6C-E608174C7092}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{DFF5F7D2-2E62-42D9-8D6C-E608174C7092}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D772A33E-9CE5-45D4-B928-66460FA950E5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D772A33E-9CE5-45D4-B928-66460FA950E5}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D772A33E-9CE5-45D4-B928-66460FA950E5}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D772A33E-9CE5-45D4-B928-66460FA950E5}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -23,3 +28,4 @@ Global
 		SolutionGuid = {6831B4F6-F37B-423E-BC95-9E7E85F37CDF}
 	EndGlobalSection
 EndGlobal
+
