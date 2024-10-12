@@ -1,10 +1,8 @@
-﻿using System;
-using System.Diagnostics;
+﻿using static System.Net.Mime.MediaTypeNames;
 using System.Globalization;
 using Microsoft.Playwright;
 
-
-namespace InstantGaming;
+namespace EpicGames;
 
 internal class Program
 {
@@ -27,7 +25,7 @@ internal class Program
         // Necesario para instalar los navegadores
         Microsoft.Playwright.Program.Main(["install"]);
 
-        // Esta función accede a la web 1 vez hasta el buscador de juegos y itera el array nombresJuegos devolviendo nombre y precio 
+        // Esta función accede a la web 1 vez hasta el buscador de juegos e itera el array nombresJuegos devolviendo nombre y precio 
         //await getInfoJuegos(nombresJuegos);
         Console.WriteLine("Lista de juegos:\n");
 
@@ -81,8 +79,10 @@ internal class Program
         // Almacena todos los juegos
         List<Juego> juegosDatos = new List<Juego>();
 
-        //Sirve para obtener el precio del modo en al es
-        CultureInfo.CurrentCulture = CultureInfo.InvariantCulture;
+        // DOM
+        const string BOTON_COOKIES = "#onetrust-accept-btn-handler";
+        const string BARRA_BUSQUEDA = "[data-testid=\'input-input\']";
+        const string RESULTADO = "#search_resultsRows a";
 
         // Inicializa Playwright para manejar la automatización del navegador
         using IPlaywright playwright = await Playwright.CreateAsync();
@@ -97,54 +97,41 @@ internal class Program
         IPage page = await context.NewPageAsync(); //Abre pagina
 
         // Ir a la página principal de Instant Gaming
-        await page.GotoAsync("https://www.instant-gaming.com/");
-
+        await page.GotoAsync("https://www.epicgames.com/");
 
         // Aceptar condiciones de Instant Gaming (cookies)
-        IElementHandle acceptButton = await page.QuerySelectorAsync("//button[text()='Aceptar todo']");
-        if (acceptButton != null) await acceptButton.ClickAsync(); //Hace click en el boton de aceptar cookies
-        await Task.Delay(2000);//Espera de 2 milisegundos esperando cookies
+        // Esperar a que el botón de aceptar cookies esté visible
+        await page.WaitForSelectorAsync(BOTON_COOKIES);
+        IElementHandle acceptButton = await page.QuerySelectorAsync(BOTON_COOKIES);
 
-
+        // Verificar si se encontró el botón y hacer clic en él
+        if (acceptButton != null)
+        {
+            await acceptButton.ClickAsync();
+        }
+        
         // Le damos al botón de buscar del encabezado
-        IElementHandle searchButton = await page.QuerySelectorAsync(".icon-search-input");
+        IElementHandle searchButton = await page.QuerySelectorAsync(BARRA_BUSQUEDA);
         await searchButton.ClickAsync();
 
-        foreach (var nombre in nombresJuegos)
+        foreach (var nombreJ in nombresJuegos)
         {
-            // Escribimos en la barra de búsqueda lo que queremos buscar
-            IElementHandle searchInput = await page.QuerySelectorAsync("#ig-header-search-box-input");
-            await searchInput.FillAsync(nombre); // Rellena la barra de búsqueda con el nombre del juego
+            // Escribir en la barra de busqueda
+            IElementHandle searchInput = await page.QuerySelectorAsync(BARRA_BUSQUEDA);
+            await searchInput.FillAsync(nombreJ);
 
             // Simular la tecla Enter para buscar
             await searchInput.PressAsync("Enter");
 
-            await Task.Delay(2000);
-
             await page.WaitForLoadStateAsync(LoadState.DOMContentLoaded);
+            await Task.Delay(-1);
 
-            //await Task.Delay(-1);
-            // Le damos al botón de Sistemas
-            IElementHandle spanButton = await page.WaitForSelectorAsync("span.select2-selection--single");
-            await spanButton.ClickAsync(); // Abre el menú de sistemas
-
-            // Esperar a que la lista de opciones esté disponible
-            await page.WaitForSelectorAsync("ul.select2-results__options");
-
-            // Selecciona la primera opción del menú desplegable de sistemas
-            IElementHandle firstOption = await page.QuerySelectorAsync("ul.select2-results__options li.select2-results__option");
-            await firstOption.ClickAsync(); // Hace clic en la primera opción(Selecciona los de PC)
-
-            // Inicializa una lista para almacenar los juegos encontrados
+            // Recorremos la lista de productos y recolectamos los datos
             List<Juego> juegos = new List<Juego>();
+            IReadOnlyList<IElementHandle> juegosElements = await page.QuerySelectorAllAsync(RESULTADO);
 
-            // Recoge todos los elementos que contienen información sobre los juegos
-            IReadOnlyList<IElementHandle> juegosElements = await page.QuerySelectorAllAsync(".search.listing-items"); // Para encontrar cada producto
-            // Selecciona el primer juego de la lista
-            IElementHandle firts = juegosElements[0];
-
-            // Obtiene los datos del primer juego utilizando la función GetProductAsync
-            Juego juego = await GetProductAsync(firts);
+            IElementHandle first = juegosElements[0];
+            Juego juego = await GetProductAsync(first);
 
             juegosDatos.Add(juego);
 
@@ -152,12 +139,9 @@ internal class Program
         }
 
         return juegosDatos;
-        // await Task.Delay(-1);
+        //await Task.Delay(-1);
     }
 }
 
 //-------------------------------CODIGO OK NO TOCAR-------------------------------
 //Posibles mejoras: Seleccionar "juego" por si toca un dlc. //Refactorizar en una funcion el parseo a decimales. //Añadir try catch
-
-
-
