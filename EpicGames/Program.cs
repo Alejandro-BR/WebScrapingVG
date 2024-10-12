@@ -2,7 +2,7 @@
 using System.Globalization;
 using Microsoft.Playwright;
 
-namespace EpicGames;
+namespace GOG;
 
 internal class Program
 {
@@ -11,7 +11,7 @@ internal class Program
         //Listado de juegos
         string[] nombresJuegos = {
             "The Witcher 3: Wild Hunt",
-            "DRAGON BALL: Sparking! ZERO",
+            "Baldur's Gate 3",
             "Black Myth: Wukong",
             "God of War",
             "Red Dead Redemption 2",
@@ -47,12 +47,14 @@ internal class Program
     {
         // PRECIO
         IElementHandle priceElement = await
-        element.QuerySelectorAsync(".information .price"); // Referencia le span con texto
+        element.QuerySelectorAsync(".final-value"); // Referencia le span con texto
         string priceRaw = await priceElement.InnerTextAsync(); // Coge el precio del span
+
         // NOMBRE
         IElementHandle nameElement = await
-        element.QuerySelectorAsync(".information .text"); // Referencia le span con texto
+        element.QuerySelectorAsync(".product-tile__title"); // Referencia le span con texto
         string textName = await nameElement.InnerTextAsync(); // Coge el texto del span
+
         // Quitar el EUR
         priceRaw = priceRaw.Replace("€", "", StringComparison.OrdinalIgnoreCase);
         // Quitar los espacios al principio y al final de la cadena
@@ -80,9 +82,11 @@ internal class Program
         List<Juego> juegosDatos = new List<Juego>();
 
         // DOM
-        const string BOTON_COOKIES = "#onetrust-accept-btn-handler";
-        const string BARRA_BUSQUEDA = "[data-testid=\'input-input\']";
-        const string RESULTADO = "#search_resultsRows a";
+        const string BOTON_COOKIES = "#CybotCookiebotDialogBodyLevelButtonLevelOptinAllowAll";
+        const string BARRA_BUSQUEDA = ".menu-search-input__field";
+        const string LUPA = ".menu-link.menu-link--last.menu-link--search.menu-link--icon";
+        const string BUSQUEDA_CATALOGO = ".search__input";
+        const string RESULTADO = ".product-tile";
 
         // Inicializa Playwright para manejar la automatización del navegador
         using IPlaywright playwright = await Playwright.CreateAsync();
@@ -97,7 +101,7 @@ internal class Program
         IPage page = await context.NewPageAsync(); //Abre pagina
 
         // Ir a la página principal de Instant Gaming
-        await page.GotoAsync("https://www.epicgames.com/");
+        await page.GotoAsync("https://www.gog.com/es/");
 
         // Aceptar condiciones de Instant Gaming (cookies)
         // Esperar a que el botón de aceptar cookies esté visible
@@ -109,26 +113,44 @@ internal class Program
         {
             await acceptButton.ClickAsync();
         }
-        
+
         // Le damos al botón de buscar del encabezado
-        IElementHandle searchButton = await page.QuerySelectorAsync(BARRA_BUSQUEDA);
-        await searchButton.ClickAsync();
+        IElementHandle botonLupa = await page.QuerySelectorAsync(LUPA);
+        await botonLupa.ClickAsync();
+        await page.WaitForLoadStateAsync(LoadState.DOMContentLoaded);
+
+        bool primeraVez = true;
 
         foreach (var nombreJ in nombresJuegos)
         {
-            // Escribir en la barra de busqueda
-            IElementHandle searchInput = await page.QuerySelectorAsync(BARRA_BUSQUEDA);
-            await searchInput.FillAsync(nombreJ);
+            if (primeraVez)
+            {
+                primeraVez = false;
+                // Escribir en la barra de busqueda
+                IElementHandle searchInput = await page.QuerySelectorAsync(BARRA_BUSQUEDA);
+                await searchInput.FillAsync(nombreJ);
 
-            // Simular la tecla Enter para buscar
-            await searchInput.PressAsync("Enter");
+                // Simular la tecla Enter para buscar
+                await searchInput.PressAsync("Enter");
+                await Task.Delay(3000);
 
-            await page.WaitForLoadStateAsync(LoadState.DOMContentLoaded);
-            await Task.Delay(-1);
+            } else {
+                // Escribir en la barra de busqueda
+                IElementHandle searchInput = await page.QuerySelectorAsync(BUSQUEDA_CATALOGO);
+                await searchInput.FillAsync(nombreJ);
+
+                // Simular la tecla Enter para buscar
+                await searchInput.PressAsync("Enter");
+                await Task.Delay(3000);
+            }
+
 
             // Recorremos la lista de productos y recolectamos los datos
             List<Juego> juegos = new List<Juego>();
+            await page.WaitForLoadStateAsync(LoadState.DOMContentLoaded);
+
             IReadOnlyList<IElementHandle> juegosElements = await page.QuerySelectorAllAsync(RESULTADO);
+            await page.WaitForLoadStateAsync(LoadState.DOMContentLoaded);
 
             IElementHandle first = juegosElements[0];
             Juego juego = await GetProductAsync(first);

@@ -13,7 +13,7 @@ internal class Program
         //Listado de juegos
         string[] nombresJuegos = {
             "The Witcher 3: Wild Hunt",
-            "DRAGON BALL: Sparking! ZERO",
+            "Baldur's Gate 3",
             "Black Myth: Wukong",
             "God of War",
             "Red Dead Redemption 2",
