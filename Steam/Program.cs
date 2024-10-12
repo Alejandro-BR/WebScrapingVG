@@ -8,15 +8,15 @@ internal class Program
     {
         string[] nombresJuegos = {
             "The Witcher 3: Wild Hunt",
-            "Baldur's Gate 3",
-            "Black Myth: Wukong",
+            "The Elder Scrolls V: Skyrim Special Edition",
+            "Resident Evil 2",
             "God of War",
-            "Red Dead Redemption 2",
+            "Frostpunk 2",
             "Terraria",
-            "Detroit: Become Human",
+            "Spore",
             "Cyberpunk 2077: Ultimate Edition",
-            "Assassin's Creed® Odyssey",
-            "Stray"
+            "Disney Epic Mickey: Rebrushed",
+            "GRIS"
         };
 
         // Instalar los navegadores

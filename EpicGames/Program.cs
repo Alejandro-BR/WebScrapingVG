@@ -11,15 +11,15 @@ internal class Program
         //Listado de juegos
         string[] nombresJuegos = {
             "The Witcher 3: Wild Hunt",
-            "Baldur's Gate 3",
-            "Black Myth: Wukong",
+            "The Elder Scrolls V: Skyrim Special Edition",
+            "Resident Evil 2",
             "God of War",
-            "Red Dead Redemption 2",
+            "Frostpunk 2",
             "Terraria",
-            "Detroit: Become Human",
+            "Spore",
             "Cyberpunk 2077: Ultimate Edition",
-            "Assassin's Creed® Odyssey",
-            "Stray"
+            "Disney Epic Mickey: Rebrushed",
+            "GRIS"
         };
 
         // Necesario para instalar los navegadores
@@ -57,8 +57,13 @@ internal class Program
 
         // Quitar el EUR
         priceRaw = priceRaw.Replace("€", "", StringComparison.OrdinalIgnoreCase);
+
+        // Cambiar el punto por una coma
+        priceRaw = priceRaw.Replace(".", ",", StringComparison.OrdinalIgnoreCase);
+
         // Quitar los espacios al principio y al final de la cadena
         priceRaw = priceRaw.Trim();
+
         // Pasar a decimal
         decimal price = decimal.Parse(priceRaw);
 
