@@ -28,7 +28,9 @@ internal class Program
 
         for (int i = 0; i < nombresJuegos.Length; i++)
         {
-            Console.WriteLine("\n" + nombresJuegos[i]);
+            Console.ForegroundColor = ConsoleColor.Blue;
+            Console.WriteLine("\n" + nombresJuegos[i] + "\n");
+            Console.ResetColor();
             Console.WriteLine("Steam: \n" + juegosSteam[i]);
             Console.WriteLine("Instant Gaming: \n" + juegosInstantGaming[i]);
             Console.WriteLine("GOG: \n" + juegosGog[i]);
