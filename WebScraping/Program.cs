@@ -34,6 +34,18 @@ internal class Program
             Console.WriteLine("Steam: \n" + juegosSteam[i]);
             Console.WriteLine("Instant Gaming: \n" + juegosInstantGaming[i]);
             Console.WriteLine("GOG: \n" + juegosGog[i]);
+
+            decimal[] precios = new decimal[] { juegosSteam[i].Price, juegosGog[i].Price, juegosInstantGaming[i].Price };
+
+            // Cálculo de la media, mínimo y máximo
+            decimal media = precios.Average();
+            decimal minPrecio = precios.Min();
+            decimal maxPrecio = precios.Max();
+
+            // Mostrar los resultados
+            Console.WriteLine($"Media de precios: {media:C}");
+            Console.WriteLine($"Precio mínimo: {minPrecio:C}");
+            Console.WriteLine($"Precio máximo: {maxPrecio:C}");
         }
     }
 }
